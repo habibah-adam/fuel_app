@@ -1,8 +1,10 @@
 import requests
+import time
 import credentials
 import uuid
 import csv
 import json
+import os
 from pprint import pprint
 from station import Station
 from fuel import Fuel
@@ -52,14 +54,18 @@ class ApiHandler:
         
 
     def get_postcode(self, suburb):
-        with open("suburbs.csv") as f:
+        main_dir = os.path.dirname(__file__)
+        suburbs_csv = "{}/suburbs.csv".format(main_dir)
+        with open(suburbs_csv, "r") as f:
             lines = csv.reader(f)
             for line in lines:
                 if line[1].lower() == suburb.lower() and line[4].strip() == "Delivery Area":
                     return line[0]
 
     def load_ref_data(self):
-        with open("ref_data.json") as f:
+        main_dir = os.path.dirname(__file__)
+        ref_data_json = "{}/ref_data.json".format(main_dir)
+        with open(ref_data_json, 'r') as f:
             fuel_data = json.load(f)
         return fuel_data
 
@@ -67,7 +73,7 @@ class ApiHandler:
         stations = []
         fuel_data = self.load_ref_data()
         for item in fuel_data["stations"]["items"]:
-            if item["address"].endswith(f"{postcode}"):
+            if item["address"].endswith("{}".format(postcode)):
                 station = Station(item["brand"], item["name"], item["code"], item["address"])
                 stations.append(station)
         return stations
@@ -79,32 +85,46 @@ class ApiHandler:
                 return item["name"]
 
     def fuel_prices_single_station(self, station_code):
-        response = requests.get(f"{self.base_url}{self.price_url}{station_code}", \
+        response = requests.get("{}{}{}".format(self.base_url,self.price_url,station_code), \
             headers={
-                "Authorization": f"Bearer {self.get_accessToken()}", \
+                "Authorization": "Bearer {}".format(self.get_accessToken()), \
                 "apikey": credentials.api_key, \
                 "Content-Type": "application/json", \
                 "transactionid": ApiHandler.get_uuid(), \
                 "requesttimestamp": ApiHandler.get_timestamp()
             })
-        return response.json()
+        r = response.json()
+        if 'errorDetails' in r.keys():
+            print(r['errorDetails']['message'])
+            print('Trying Local Database (Updated Nightly)')
+            main_dir = os.path.dirname(__file__)
+            fuel_json = "{}/fuel_prices.json".format(main_dir)
+            data = {'prices': []}
+            with open(fuel_json, "r") as f:
+                r = json.load(f)
+                for i in r['prices']:
+                    if i['stationcode'] == station_code:
+                        data['prices'].append(i)
+            return data
+        else:
+            return r
+
 
     def stations_with_fuel_types(self, postcode):
         stations = self.get_stations(postcode)[:5]
         for station in stations:
-            print(station.name, id(station), id(station.fuel_types))
             fuel_types = self.fuel_prices_single_station(station.code)
+            # if 'errorDetails' in fuel_types.keys():
+            #     print('This is an app that uses FREE API account from NSW government.')
+            #     print('Limit is 5 API call per minute.')
+            #     print(fuel_types['errorDetails']['message'])
+            #     print('Waiting for a minute...')
+            #     time.sleep(60)
+            #     fuel_types = self.fuel_prices_single_station(station.code)
             for item in fuel_types["prices"]:
                 fuel = Fuel(item["fueltype"], self.get_fuel_name(item["fueltype"]), item["price"])
                 station.add_fuel_type(fuel)
         return stations
 
 ah = ApiHandler()
-s = ah.stations_with_fuel_types(2194)
-
-for i in s:
-    pprint(i.fuel_types)
-
-
-
-
+print(ah.get_accessToken())
