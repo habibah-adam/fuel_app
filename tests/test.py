@@ -33,7 +33,9 @@ class TestFuelApi(unittest.TestCase):
         self.assertIn(result4, fuel_names, msg=f"{result4} not in {fuel_names}")
         self.assertIsNone(result5, msg=f"{result5} is not None.")
 
-    
+    # def test_getStations(self):
+    #     ah = ApiHandler()
+
         
 
         
