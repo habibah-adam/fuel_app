@@ -1,7 +1,7 @@
 name: continous integration
 on:
   push:
-    branches: [masater]
+    branches: [ master ]
 
 jobs:
   test_suite:
@@ -9,4 +9,5 @@ jobs:
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v2
+
 
