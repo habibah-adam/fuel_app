@@ -55,7 +55,7 @@ class ApiHandler:
 
     def get_postcode(self, suburb):
         main_dir = os.path.dirname(__file__)
-        suburbs_csv = "{}/suburbs.csv".format(main_dir)
+        suburbs_csv = f"{main_dir}/suburbs.csv"
         with open(suburbs_csv, "r") as f:
             lines = csv.reader(f)
             for line in lines:
@@ -64,7 +64,7 @@ class ApiHandler:
 
     def load_ref_data(self):
         main_dir = os.path.dirname(__file__)
-        ref_data_json = "{}/ref_data.json".format(main_dir)
+        ref_data_json = f"{main_dir}/ref_data.json"
         with open(ref_data_json, 'r') as f:
             fuel_data = json.load(f)
         return fuel_data
@@ -73,7 +73,7 @@ class ApiHandler:
         stations = []
         fuel_data = self.load_ref_data()
         for item in fuel_data["stations"]["items"]:
-            if item["address"].endswith("{}".format(postcode)):
+            if item["address"].endswith(f"{postcode}"):
                 station = Station(item["brand"], item["name"], item["code"], item["address"])
                 stations.append(station)
         return stations
@@ -85,9 +85,9 @@ class ApiHandler:
                 return item["name"]
 
     def fuel_prices_single_station(self, station_code):
-        response = requests.get("{}{}{}".format(self.base_url,self.price_url,station_code), \
+        response = requests.get(f"{self.base_url}{self.price_url}{station_code}", \
             headers={
-                "Authorization": "Bearer {}".format(self.get_accessToken()), \
+                "Authorization": f"Bearer {self.get_accessToken()}", \
                 "apikey": credentials.api_key, \
                 "Content-Type": "application/json", \
                 "transactionid": ApiHandler.get_uuid(), \
@@ -98,7 +98,7 @@ class ApiHandler:
             print(r['errorDetails']['message'])
             print('Trying Local Database (Updated Nightly)')
             main_dir = os.path.dirname(__file__)
-            fuel_json = "{}/fuel_prices.json".format(main_dir)
+            fuel_json = f"{main_dir}/fuel_prices.json"
             data = {'prices': []}
             with open(fuel_json, "r") as f:
                 r = json.load(f)
@@ -126,5 +126,3 @@ class ApiHandler:
                 station.add_fuel_type(fuel)
         return stations
 
-ah = ApiHandler()
-print(ah.get_accessToken())
