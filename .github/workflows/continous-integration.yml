@@ -33,9 +33,9 @@ jobs:
           port: 22
           script: |
             rm -rf fuel_app
-            git clone: https://github.com/habibah-adam/fuel_app.git
+            git clone https://github.com/habibah-adam/fuel_app.git
             python3.8 -m venv /home/github-actions/fuel_app/venv
-            /home/github-actions/fuel_app/venv/bin/pip install -r requirements.txt
+            /home/github-actions/fuel_app/venv/bin/pip install -r /home/github-actions/fuel_app/requirements.txt
 
 
 
