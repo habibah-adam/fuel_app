@@ -54,20 +54,14 @@ class ApiHandler:
         
 
     def get_postcode(self, suburb):
-        abs_path = os.path.dirname(__file__)
-        main_dir = os.path.dirname(abs_path)
-        suburbs_csv = f"{main_dir}/suburbs.csv"
-        with open(suburbs_csv, "r") as f:
+        with open("suburbs.csv", "r") as f:
             lines = csv.reader(f)
             for line in lines:
                 if line[1].lower() == suburb.lower() and line[4].strip() == "Delivery Area":
                     return line[0]
 
     def load_ref_data(self):
-        abs_path = os.path.abspath(__file__)
-        main_dir = os.path.dirname(abs_path)
-        ref_data_json = f"{main_dir}/ref_data.json"
-        with open(ref_data_json, 'r') as f:
+        with open("ref_data.json", 'r') as f:
             fuel_data = json.load(f)
         return fuel_data
 
@@ -97,13 +91,8 @@ class ApiHandler:
             })
         r = response.json()
         if 'errorDetails' in r.keys():
-            print(r['errorDetails']['message'])
-            print('Trying Local Database (Updated Nightly)')
-            abs_path_price = os.path.abspath(__file__)
-            main_dir = os.path.dirname(abs_path_price)
-            fuel_json = f"{main_dir}/fuel_prices.json"
             data = {'prices': []}
-            with open(fuel_json, "r") as f:
+            with open("fuel_prices.json", "r") as f:
                 r = json.load(f)
                 for i in r['prices']:
                     if i['stationcode'] == station_code:
