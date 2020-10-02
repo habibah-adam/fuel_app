@@ -33,8 +33,12 @@ class TestFuelApi(unittest.TestCase):
         self.assertIn(result4, fuel_names, msg=f"{result4} not in {fuel_names}")
         self.assertIsNone(result5, msg=f"{result5} is not None.")
 
-    # def test_getStations(self):
-    #     ah = ApiHandler()
+    def test_getStations(self):
+        ah = ApiHandler()
+        result1 = ah.get_stations("2194")
+        result2 = ah.get_stations("830000")
+        self.assertIsInstance(result1, list, msg="result is not list.")
+        self.assertEqual(result2, [], msg="for wrong postcode should return empty list.")
 
         
 
