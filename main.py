@@ -30,7 +30,8 @@ def postcode_exists(code):
         False otherwise
     '''
     # Working out the current path
-    main_dir = os.path.dirname(__file__)
+    abs_path = os.path.abspath(__file__)
+    main_dir = os.path.dirname(abs_path)
     suburbs_csv = f"{main_dir}/suburbs.csv"
     with open(suburbs_csv, 'r') as f:
         lines = csv.reader(f)
