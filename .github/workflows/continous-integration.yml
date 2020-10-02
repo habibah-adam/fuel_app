@@ -1,4 +1,4 @@
-name: continous integration
+name: CI/CD
 on:
   push:
     branches: [ master ]
@@ -20,6 +20,23 @@ jobs:
       - name: Run Tests
         run: |
           python -m unittest discover tests/
+  deployment:
+    needs: test_suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fresh clone & repo install
+        uses: appleboy/ssh-action@master
+        with:
+          host: 54.226.40.64
+          username: github-actions
+          key: ${{secrets.SSH_KEY}}
+          port: 22
+          script: |
+            rm -rf fuel_app
+            git clone: https://github.com/habibah-adam/fuel_app.git
+            python3.8 -m venv /home/github-actions/fuel_app/venv
+            /home/github-actions/fuel_app/venv/bin/pip install -r requirements.txt
+
 
 
 

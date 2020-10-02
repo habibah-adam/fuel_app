@@ -218,7 +218,7 @@ def main():
                 else:
                     print('No stations found for the given location. Return to main menu...')
                     time.sleep(3)
-            if open == '2':
+            if option == '2':
                 pass
             clear()
             option = input("What would you like to do? \n 1)Search By location\n 2)Search for Fuel Type\n")
